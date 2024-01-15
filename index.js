@@ -30,9 +30,13 @@ const uniq = (items) => {
 
     items.forEach(item => {
         if (hash[item.info.subject]) {
-            return;
+            hash[item.info.subject] = {
+                info: { ...item.info, ...hash[item.info.subject].info },
+                img: hash[item.info.subject].img
+            };
+        } else {
+            hash[item.info.subject] = item;
         }
-        hash[item.info.subject] = item;
     });
 
     return Object.values(hash);
