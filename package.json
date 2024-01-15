@@ -1,0 +1,12 @@
+{
+  "name": "cardano-token-handler",
+  "version": "1.0.0",
+  "description": "handling of cardano-registry repo and custom tokens",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ridel1e",
+  "license": "ISC",
+  "dependencies": {}
+}
