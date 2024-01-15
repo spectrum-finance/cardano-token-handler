@@ -45,12 +45,12 @@ const tokensInfo = sortList(uniq(config.paths.flatMap(handleDir))
         if (img) {
             if (img.type === 'buffer') {
                 filePath = `./out/logos/${info.subject}.webp`;
-                url = `/cardano/logos/${info.subject}.webp`;
+                url = `/logos/cardano/${info.subject}.webp`;
                 fs.writeFileSync(path.join(__dirname, filePath), img.content);
             } else {
                 const [fileName] = img.content.split('/').reverse();
                 filePath = `./out/logos/${fileName}`;
-                url = `/cardano/logos/${fileName}`;
+                url = `/logos/cardano/${fileName}`;
                 try {
                     fs.writeFileSync(path.join(__dirname, filePath), fs.readFileSync(path.join(__dirname, img.content)));
                 } catch (e) {
