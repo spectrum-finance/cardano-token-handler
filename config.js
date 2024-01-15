@@ -65,15 +65,11 @@ module.exports = {
         verified: false,
         version: 2,
         mapper: (json) => {
+            const jsonCopy = Object.assign({}, json);
+            delete jsonCopy['logo'];
             return {
                 info: {
-                    "name": json.name,
-                    "ticker": json.ticker,
-                    "subject": json.subject,
-                    "policyId": json.policyId,
-                    "decimals": json.decimals,
-                    "description": json.description,
-                    "url": json.url,
+                    ...jsonCopy
                 },
                 img: json.logo && json.logo.type === 'url' ? {
                     content: path.join('./sources/cardano-tokens/images', json.logo.content)
