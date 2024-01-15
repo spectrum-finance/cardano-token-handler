@@ -75,7 +75,7 @@ module.exports = {
                     "description": json.description,
                     "url": json.url,
                 },
-                img: json.logo?.type === 'url' ? {
+                img: json.logo && json.logo.type === 'url' ? {
                     content: path.join('./sources/cardano-tokens/images', json.logo.content)
                 } : json.logo
             }
