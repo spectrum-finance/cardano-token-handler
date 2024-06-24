@@ -5,9 +5,14 @@ const path = require("path");
 const handleDir = ({src, mapper, verified}) => {
     try {
         return fs.readdirSync(path.join(__dirname, src)).map((fileName) => {
-            const file = fs.readFileSync(path.join(__dirname, `${src}/${fileName}`));
-            const {info, img} = mapper(JSON.parse(file.toString()));
-            return {info: {...info, verified}, img};
+            try {
+                const file = fs.readFileSync(path.join(__dirname, `${src}/${fileName}`));
+                const {info, img} = mapper(JSON.parse(file.toString()));
+                return {info: {...info, verified}, img};
+            } catch (e) {
+              console.warn(e);
+              return undefined;
+            }
         });
     } catch (e) {
         console.warn(e)
@@ -42,7 +47,7 @@ const uniq = (items) => {
     return Object.values(hash);
 }
 
-const tokensInfo = sortList(uniq(config.paths.flatMap(handleDir))
+const tokensInfo = sortList(uniq(config.paths.flatMap(configItem => handleDir(configItem).filter(Boolean)))
     .map(({info, img}) => {
         let filePath;
         let url;
