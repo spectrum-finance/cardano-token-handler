@@ -57,14 +57,18 @@ const tokensInfo = sortList(uniq(config.paths.flatMap(configItem => handleDir(co
                 url = `/logos/cardano/${info.subject}.webp`;
                 fs.writeFileSync(path.join(__dirname, filePath), img.content);
             } else {
-                const [fileName] = img.content.split('/').reverse();
-                filePath = `./out/logos/${fileName}`;
-                url = `/logos/cardano/${fileName}`;
-                try {
-                    fs.writeFileSync(path.join(__dirname, filePath), fs.readFileSync(path.join(__dirname, img.content)));
-                } catch (e) {
-                    console.log(e);
-                    console.log(`no icon for ${JSON.stringify(info)}`)
+                if (img.content.startsWith('http')) {
+                    url = img.content
+                } else {
+                    const [fileName] = img.content.split('/').reverse();
+                    filePath = `./out/logos/${fileName}`;
+                    url = `/logos/cardano/${fileName}`;
+                    try {
+                        fs.writeFileSync(path.join(__dirname, filePath), fs.readFileSync(path.join(__dirname, img.content)));
+                    } catch (e) {
+                        console.log(e);
+                        console.log(`no icon for ${JSON.stringify(info)}`)
+                    }
                 }
             }
         }
