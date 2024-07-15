@@ -81,7 +81,29 @@ const tokenList = {
     version: config.paths.map(c => c.version).join('--'),
     tags: {},
     keywords: ["spectrum finance", "tokens", "cardano tokens"],
-    tokens: tokensInfo
+    tokens: tokensInfo,
+}
+
+const tokenListV2 = {
+    name: "Spectrum Finance Cardano Token List",
+    timestamp: new Date().toISOString(),
+    version: config.paths.map(c => c.version).join('--'),
+    tags: {},
+    keywords: ["spectrum finance", "tokens", "cardano tokens"],
+    tokens: tokensInfo.reduce((acc, asset) => ({
+        ...acc,
+        [asset.subject
+            ? [
+                asset.subject.slice(0, 56),
+                asset.subject.slice(56, asset.subject.length),
+            ].join('.')
+            : '.']: {
+            ...asset,
+            logo: asset.logo && !asset.logo?.startsWith('http') ?
+                `https://spectrum.fi${asset.logo}` :
+                asset.logo,
+        }
+    }), {}),
 }
 
 fs.writeFile(path.join(__dirname, './out/cardano-token-list.json'), JSON.stringify(tokenList, null, 2), 'utf8', function (err) {
@@ -91,5 +113,15 @@ fs.writeFile(path.join(__dirname, './out/cardano-token-list.json'), JSON.stringi
     }
 
     console.log("New cardano token list has been built.");
+    console.log("Current version is " + tokenList.version + ".");
+})
+
+fs.writeFile(path.join(__dirname, './out/cardano-token-list-v2.json'), JSON.stringify(tokenListV2, null, 2), 'utf8', function (err) {
+    if (err) {
+        console.log("An error occured while writing JSON Object to File. ");
+        return console.log(err);
+    }
+
+    console.log("New cardano token list v2 has been built.");
     console.log("Current version is " + tokenList.version + ".");
 })
