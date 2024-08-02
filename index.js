@@ -112,7 +112,7 @@ const tokenListSnekfun = {
     version: config.paths.map(c => c.version).join('--'),
     tags: {},
     keywords: ["snekfun", "tokens", "cardano tokens"],
-    tokens: tokensInfo.filter(asset => asset.snekFun).reduce((acc, asset) => ({
+    tokens: tokensInfo.filter(asset => asset.snekFun || !asset.subject).reduce((acc, asset) => ({
         ...acc,
         [asset.subject
             ? [
