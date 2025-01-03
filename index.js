@@ -164,7 +164,7 @@ try {
         .forEach(asset => fs.writeFileSync(`./out/metadata/${asset.subject ? [
             asset.subject.slice(0, 56),
             asset.subject.slice(56, asset.subject.length),
-        ].join('.') : 'ada'}`, JSON.stringify(asset)))
+        ].join('.') : 'ada'}.json`, JSON.stringify(asset)))
 
     console.log('separated assets generated');
 } catch (e) {
