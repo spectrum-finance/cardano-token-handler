@@ -157,3 +157,16 @@ fs.writeFile(path.join(__dirname, './out/cardano-token-list-snekfun.json'), JSON
     console.log("New cardano token list snekfun has been built.");
     console.log("Current version is " + tokenList.version + ".");
 })
+
+try {
+    tokenList
+        .tokens
+        .forEach(asset => fs.writeFileSync(`./out/metadata/${asset.subject ? [
+            asset.subject.slice(0, 56),
+            asset.subject.slice(56, asset.subject.length),
+        ].join('.') : 'ada'}`, JSON.stringify(asset)))
+
+    console.log('separated assets generated');
+} catch (e) {
+    console.log(e);
+}
