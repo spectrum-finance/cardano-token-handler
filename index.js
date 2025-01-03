@@ -164,7 +164,12 @@ try {
         .forEach(asset => fs.writeFileSync(`./out/metadata/${asset.subject ? [
             asset.subject.slice(0, 56),
             asset.subject.slice(56, asset.subject.length),
-        ].join('.') : 'ada'}.json`, JSON.stringify(asset)))
+        ].join('.') : 'ada'}.json`, JSON.stringify({
+            ...asset,
+            logo: asset.logo && !asset.logo?.startsWith('http') ?
+                `https://spectrum.fi${asset.logo}` :
+                asset.logo,
+        })))
 
     console.log('separated assets generated');
 } catch (e) {
