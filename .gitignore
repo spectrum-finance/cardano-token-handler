@@ -3,3 +3,4 @@ node_modules
 sources/cardano-token-registry
 sources/cardano-tokens
 .idea
+.env
