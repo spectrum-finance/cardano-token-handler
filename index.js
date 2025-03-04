@@ -1,7 +1,35 @@
 const config = require('./config');
 const fs = require("fs");
 const path = require("path");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+require("dotenv").config();
 
+const s3adapter = new S3Client({
+    endpoint: process.env.R2_ENDPOINT,
+    credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY,
+        secretAccessKey: process.env.R2_SECRET_KEY,
+    },
+    region: "auto"
+})
+
+const uploadToCDN = async (key, data, contentType) => {
+    try{
+        const params = new PutObjectCommand({
+            Bucket: 'tokens',
+            Key: key,
+            Body: data,
+            ContentType: contentType,
+            ACL: "public-read",
+        });
+        await s3adapter.send(params);
+        console.log(`Uploaded: ${key}`);
+        return `https://tokens.splash.trade/${key}`
+    } catch (error){
+        console.error(`Upload error for ${key}:`, error)
+        return null
+    }
+}
 const handleDir = ({src, mapper, verified}) => {
     try {
         return fs.readdirSync(path.join(__dirname, src)).map((fileName) => {
@@ -10,8 +38,8 @@ const handleDir = ({src, mapper, verified}) => {
                 const {info, img} = mapper(JSON.parse(file.toString()));
                 return {info: {...info, verified}, img};
             } catch (e) {
-              console.warn(e);
-              return undefined;
+                console.warn(e);
+                return undefined;
             }
         });
     } catch (e) {
@@ -51,20 +79,22 @@ const tokensInfo = sortList(uniq(config.paths.flatMap(configItem => handleDir(co
     .map(({info, img}) => {
         let filePath;
         let url;
+        let fileName
         if (img) {
             if (img.type === 'buffer') {
-                filePath = `./out/logos/${info.subject}.webp`;
-                url = `/logos/cardano/${info.subject}.webp`;
-                fs.writeFileSync(path.join(__dirname, filePath), img.content);
+                fileName = `${info.subject}.webp`
+                url = `https://tokens.splash.trade/logos/${fileName}`;
+                uploadToCDN(`logos/${fileName}`, img.content, "image/webp").catch(console.error);
             } else {
                 if (img.content.startsWith('http')) {
                     url = img.content
                 } else {
                     const [fileName] = img.content.split('/').reverse();
                     filePath = `./out/logos/${fileName}`;
-                    url = `/logos/cardano/${fileName}`;
+                    url = `https://tokens.splash.trade/logos/${fileName}`;
                     try {
-                        fs.writeFileSync(path.join(__dirname, filePath), fs.readFileSync(path.join(__dirname, img.content)));
+                        const fileContent = fs.readFileSync(path.join(__dirname, img.content));
+                        uploadToCDN(`logos/${fileName}`, img.content, "image/webp").catch(console.error);
                     } catch (e) {
                         console.log(e);
                         console.log(`no icon for ${JSON.stringify(info)}`)
@@ -175,3 +205,24 @@ try {
 } catch (e) {
     console.log(e);
 }
+const processTokensUpload = async () => {
+    try {
+        await Promise.all(
+            tokenList.tokens.map(async (asset) => {
+                const fileName = asset.subject
+                    ? `${asset.subject.slice(0, 56)}${asset.subject.length > 56 ? "." + asset.subject.slice(56) : ""}.json`
+                    : "ada.json";
+
+                const jsonContent = JSON.stringify(asset);
+
+                await uploadToCDN(fileName, jsonContent, 'application/json');
+            })
+        );
+
+        console.log("assets were uploaded to cdn");
+    } catch (e) {
+        console.error("error during uploading json to cdn", e);
+    }
+};
+
+processTokensUpload()

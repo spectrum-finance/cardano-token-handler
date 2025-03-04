@@ -8,5 +8,8 @@
   },
   "author": "ridel1e",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.758.0",
+    "dotenv": "^16.4.7"
+  }
 }
